@@ -8,11 +8,12 @@ ROWS, COLS = 8, 8
 SQUARE_SIZE = WIDTH // COLS
 
 # rgb
-RED = (255, 0, 0)
+pink = (255, 102, 178)
 WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-YELLOW = (0, 0, 255)
-GREY = (128, 128, 128)
+gray = (128, 128, 128)
+red = (153, 0, 0)
+darkPink = (153,0,76)
+black = (0, 0, 0)
 
 CROWN = pygame.transform.scale(pygame.image.load('assets/crown.png'), (44, 25))
 
