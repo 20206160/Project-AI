@@ -1,21 +1,22 @@
+from tkinter import font
+
 import pygame
 import tkinter.messagebox as messagebox
-import time
 from copy import deepcopy
 
 WIDTH, HEIGHT = 700, 700
 ROWS, COLS = 8, 8
 SQUARE_SIZE = WIDTH // COLS
-pygame.init()
 
-# rbg
-pink = (153, 0, 76)
+#rbg
+pink = (255, 102, 178)
 WHITE = (255, 255, 255)
 grey = (128, 128, 128)
+red = (153, 0, 0)
+darkpink = (153,0,76)
 black = (0, 0, 0)
 
-CROWN = pygame.transform.scale(pygame.image.load('assets/crown.png'), (50, 50))
-
+CROWN = pygame.transform.scale(pygame.image.load('assets/crown.png'), (44, 25))
 
 class Piece:
     PADDING = 15
@@ -25,8 +26,7 @@ class Piece:
         self.row = row
         self.col = col
         self.color = color
-        self.king = False  #initial there is no king
-
+        self.king = False #initial there is no king
         self.x = 0
         self.y = 0
         self.calPos()
@@ -40,7 +40,7 @@ class Piece:
 
     def draw(self, win):
         radius = SQUARE_SIZE // 2 - self.PADDING
-        pygame.draw.circle(win, self.color, (self.x, self.y), radius + self.OUTLINE)
+        pygame.draw.circle(win, darkpink, (self.x, self.y), radius + self.OUTLINE)
         pygame.draw.circle(win, self.color, (self.x, self.y), radius)
         if self.king:
             win.blit(CROWN, (self.x - CROWN.get_width() // 2, self.y - CROWN.get_height() // 2)) #put the crown
@@ -50,8 +50,8 @@ class Piece:
         self.col = col
         self.calPos()
 
-    def __repr__(self):
-        return str(self.color)
+   # def __repr__(self):
+    #    return str(self.color)
 
 
 class Board:
@@ -65,12 +65,11 @@ class Board:
     def drawSquares(self, win):
         win.fill(grey) #all the board is gray
         for row in range(ROWS):
-            for col in range(row % 2, COLS, 2): #divide the board
-                pygame.draw.rect(win, pink, (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+            for col in range(row % 2, COLS, 2): #divide the
+                pygame.draw.rect(win, darkpink, (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
     def evaluate(self):
         return self.whiteLeft - self.pinkLeft + (self.whiteKings - self.pinkKings) #score
-
     def getAllPieces(self, color):
         pieces = [] #Initial
         for row in self.board:
@@ -96,16 +95,16 @@ class Board:
     def createBoard(self):
         for row in range(ROWS):
             self.board.append([])
-            for col in range(COLS):#loop in columns
+            for col in range(COLS): #loop in columns
                 if col % 2 == ((row + 1) % 2): #condition inside the columns to put peice 0=no piece 1=piece
                     if row < 3:
-                        self.board[row].append(Piece(row, col, WHITE))  #draw the places of pieces
+                        self.board[row].append(Piece(row, col, WHITE)) #draw the places of pieces
                     elif row > 4:
-                        self.board[row].append(Piece(row, col, pink))
+                        self.board[row].append(Piece(row, col,pink))
                     else:
                         self.board[row].append(0) #no peice
                 else:
-                    self.board[row].append(0)
+                    self.board[row].append(0)  # no piece
 
     def draw(self, win):
         self.drawSquares(win)
@@ -117,7 +116,7 @@ class Board:
 
     def remove(self, pieces): #Jump the other piece
         for piece in pieces: #loop in jumbed piece
-            self.board[piece.row][piece.col] = 0 #initial the oice that jumbed
+            self.board[piece.row][piece.col] = 0  #initial the oice that jumbed
             if piece != 0: #there is piece
                 if piece.color == pink:
                     self.pinkLeft -= 1 # when the coin eat the other coin pinkLeft = the number of pieces
@@ -130,32 +129,30 @@ class Board:
         elif self.whiteLeft <= 0:
             return pink
 
-        return None   #the game is continue gaming
+        return None  #the game is continue gaming
 
     def getValidMoves(self, piece):
 
         moves = {} #dictenary the  move (the move will do) : skipped (how much make kill the piece)
         if piece.king or piece.color == pink:
-            # stop = max(piece.row-3, -1)
-            moves.update(self._traverseLeft(piece.row, piece.col, -1, piece, [])) #valid move to left of pink
-            moves.update(self._traverseRight(piece.row, piece.col, -1, piece, [])) #valid move to right of pink
+            moves.update(self._traverseLeft(piece.row, piece.col, -1, piece, [])) #valid move to left
+            moves.update(self._traverseRight(piece.row, piece.col, -1, piece, [])) #valid move to right
         if piece.king or piece.color == WHITE:
-            # stop = min(piece.row+3, ROWS)
-            moves.update(self._traverseLeft(piece.row, piece.col, 1, piece, [])) #valid move to left of white
-            moves.update(self._traverseRight(piece.row, piece.col, 1, piece, [])) #valid move to right of white
+            moves.update(self._traverseLeft(piece.row, piece.col, 1, piece, []))
+            moves.update(self._traverseRight(piece.row, piece.col, 1, piece, []))
 
         return moves
 
     def _traverseLeft(self, row, column, step, piece, skipped=[]):
         moves = {}
-        last = []
+        #last = []
 
         next_row, next_col = (row + step, column - 1) #step = 1 or -1 if 1 then move up in -1 then move down
         if 0 <= next_row < ROWS and next_col >= 0:
             step1 = self.board[next_row][next_col]
             if step1 == 0: # it not valid
                 if not skipped:
-                    moves[((piece.row, piece.col), (next_row, next_col))] = skipped  #we can't do anything with it so it uninvalid so skipped
+                    moves[((piece.row, piece.col), (next_row, next_col))] = skipped #we can't do anything with it so it uninvalid so skipped
             elif step1.color != piece.color:
                 next_row, next_col = (next_row + step, next_col - 1)
                 if 0 <= next_row < ROWS and next_col >= 0:
@@ -192,7 +189,6 @@ class Board:
                             moves.update(self._traverseRight(next_row, next_col, step, piece, list(skipped)))
         return moves
 
-
 class Game:
 
     def __init__(self, win):
@@ -200,8 +196,8 @@ class Game:
         self.win = win #object from window if we play in more than one window and use it functions
 
     def update(self):
-        self.board.draw(self.win)
-        pygame.display.update() #draw every step and play make it
+        self.board.draw(self.win) #draw every step and play make it
+        pygame.display.update()
 
     def _init(self):
         self.selected = None #If clicked the piece
@@ -238,13 +234,12 @@ class Game:
         self.board = board
         self.changeTurn() #change tutrn autamitly without clicked
 
-pink = (153, 0, 76)
-WHITE = (255, 255, 255)
+
 
 def minimax(position, depth, maxPlayer): #max player =true of false true when turn to max otherwise false
     if position.winner():
         if position.winner() == WHITE:
-            return (float('inf'), position) # infinity is the maximum evaluation output
+            return (float('inf'), position)  # infinity is the maximum evaluation output
         return (float('-inf'), position)
     if depth == 0:
         return (position.evaluate(), position) #the end of depth (tree) so it is the game end
@@ -262,7 +257,7 @@ def minimax(position, depth, maxPlayer): #max player =true of false true when tu
     else:
         v = float('inf')
         min_position = position
-        for a in getAllMoves(position, pink).items():
+        for a in getAllMoves(position,pink).items():
             board = simulateMove(a, position)
             e, new_position = minimax(board, depth - 1, True)
             if min(v, e) == e:
@@ -276,7 +271,7 @@ def simulateMove(action, board): #make the move
     move, skipped = action
     piece = new_board.board[move[0][0]][move[0][1]] #piece in current board
     new_board.move(piece, move[1][0], move[1][1]) #move the piece to the new action
-    new_board.remove(skipped)  #if kill the pieces
+    new_board.remove(skipped) #if kill the pieces
 
     return new_board
 
@@ -289,46 +284,41 @@ def getAllMoves(board, color):
 
 
 FPS = 60 #number of frames per second
-WIN = pygame.display.set_mode((WIDTH, HEIGHT)) #the window of game
-pygame.display.set_caption('Checkers Game') #name window
 
-WHITE_DEPTH = 3
+WHITE_DEPTH = 2
 pink_DEPTH = 1
 
-def getRowColFromMouse(pos):
-    x, y = pos
-    row = y // SQUARE_SIZE
-    col = x // SQUARE_SIZE
-    return row, col
+WIN = pygame.display.set_mode((WIDTH, HEIGHT)) #the window of game
+pygame.display.set_caption('Checkers') #name window
 
-
-def main():
+if __name__ == '__main__':
     run = True
     clock = pygame.time.Clock() #object of clock
     game = Game(WIN) #send window to game
-    messagebox.showinfo("Game Checkers", "Start")
+    game.update()
+
     while run:
         clock.tick(FPS)
 
         if game.turn == WHITE:
-            value, new_board = minimax(game.getBoard(), WHITE_DEPTH, True)
-            game.aiMove(new_board)
-        else:
-            value, new_board = minimax(game.getBoard(), pink_DEPTH, False)
-            game.aiMove(new_board)
+            value, newBoard = minimax(game.getBoard(), WHITE_DEPTH, True)
+            game.aiMove(newBoard)
 
-        if game.winner() is not None: #check if there is winner or not
+        else:
+            value, newBoard = minimax(game.getBoard(), pink_DEPTH, False)
+            game.aiMove(newBoard)
+
+        if game.winner() != None: #check if there is winner or not
             print(game.winner()) #the color that win
-            run = False  #close the game
+            run = False #close the game
 
         for event in pygame.event.get(): #any click do in window from user
             if event.type == pygame.QUIT: #exit game
                 run = False
 
+
         game.update()
-    messagebox.showinfo("Game Over", "Winner is White pieces, ate all the Purple pieces!")
+
+
     pygame.quit()
-
-
-main()
 
