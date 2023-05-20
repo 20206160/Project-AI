@@ -24,7 +24,7 @@ class Piece:
     PADDING = 15
     OUTLINE = 2
 
-    def _init_(self, row, col, color):
+    def __init__(self, row, col, color):
         self.row = row
         self.col = col
         self.color = color
@@ -53,13 +53,13 @@ class Piece:
         self.col = col
         self.calPos()
 
-    def _repr_(self):
+    def __repr__(self):
         return str(self.color)
 
 
 class Board:
 
-    def _init_(self):
+    def __init__(self):
         self.board = []
         self.pinkLeft = self.whiteLeft = 12  # the number of Piece 12
         self.pinkKings = self.whiteKings = 0
@@ -200,7 +200,7 @@ class Board:
 
 class Game:
 
-    def _init_(self, win):
+    def __init__(self, win):
         self._init()
         self.win = win  # object from window if we play in more than one window and use it functions
 
@@ -252,8 +252,8 @@ WHITE = (255, 255, 255)
 def minimax(position, depth, maxPlayer):  # max player =true of false true when turn to max otherwise false
     if position.winner():
         if position.winner() == WHITE:
-            return (1000000000000, position)  # infinity is the maximum evaluation output
-        return (-10000000000000, position)
+            return (100, position)  # infinity is the maximum evaluation output
+        return (-100, position)
     if depth == 0:
         return (position.evaluate(), position)  # the end of depth (tree) so it is the game end
     if maxPlayer:
@@ -284,7 +284,7 @@ def alphaBeta(position, depth, alpha, beta, maxPlayer):
     if position.winner():
         if position.winner() == pink:
             return (18, position)  # infinity is the maximum evaluation output
-        return (18, position)
+        return (-18, position)
     if depth == 0:
         return (position.evaluate(), position)  # the end of depth (tree) so it is the game end
     if maxPlayer:
@@ -336,13 +336,13 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))  # the window of game
 pygame.display.set_caption('Checkers Game')  # name window
 
 # Easy Version
-WHITE_DEPTH_1 = 2
+WHITE_DEPTH_1 = 3
 pink_DEPTH_1 = 1
 # Medium Version
 WHITE_DEPTH_2 = 4
-pink_DEPTH_2 = 3
+pink_DEPTH_2 = 2
 # Hard Version
-WHITE_DEPTH_3 = 5
+WHITE_DEPTH_3 = 6
 pink_DEPTH_3 = 4
 
 
@@ -424,7 +424,7 @@ def main():
                 run = False
 
         game.update()
-    if name=="Easy":
+    if name=="Easy" and algo=="alphaBeta":
         messagebox.showinfo("Game Over", "Winner is Purple pieces")
     else:
         messagebox.showinfo("Game Over", "Winner is White pieces, ate all the Purple pieces!")
